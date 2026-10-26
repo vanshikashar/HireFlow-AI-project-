@@ -1,0 +1,171 @@
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+  color: #20243a;
+}
+
+.eyebrow {
+  color: #6957d5;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.page header h1 {
+  margin: 8px 0;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: -0.04em;
+}
+
+.page header > p:last-child {
+  color: #6c7185;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+  margin: 28px 0;
+  padding: 20px;
+  background: white;
+  border: 1px solid #e9eaf1;
+  border-radius: 16px;
+}
+
+.filters label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.filters input,
+.filters select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  color: #20243a;
+  background: #fff;
+  border: 1px solid #dedfeb;
+  border-radius: 9px;
+  font: inherit;
+}
+
+.resultHeader,
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.resultHeader {
+  margin: 28px 0 16px;
+}
+
+.resultHeader h2 {
+  font-size: 20px;
+}
+
+.resultHeader span,
+.cardTop p {
+  color: #73788a;
+  font-size: 13px;
+}
+
+.jobGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.jobCard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e9eaf1;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgb(30 35 80 / 4%);
+}
+
+.jobCard h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.jobCard p {
+  line-height: 1.6;
+}
+
+.cardTop button,
+.empty button {
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #dedfeb;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.tags,
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tags span,
+.skills span {
+  padding: 6px 9px;
+  background: #f3f1ff;
+  color: #5142a7;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.salary {
+  font-weight: 750;
+}
+
+.primary {
+  margin-top: auto;
+  padding: 12px;
+  color: white;
+  background: #5e4acb;
+  border: 0;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary:hover {
+  background: #4937b0;
+}
+
+.empty {
+  padding: 36px;
+  text-align: center;
+  background: white;
+  border: 1px dashed #d6d7e4;
+  border-radius: 16px;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #8b7bf0;
+  outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding: 18px;
+  }
+
+  .filters,
+  .jobGrid {
+    grid-template-columns: 1fr;
+  }
+}
