@@ -1,11 +1,14 @@
 
 import { useEffect, useState } from "react";
+
 import JobSearch from "./features/jobs/JobSearch";
 import AuthPage from "./features/auth/AuthPage";
 import ApplicationTracker from "./features/applications/ApplicationTracker";
 import Dashboard from "./features/dashboard/Dashboard";
 import SavedJobs from "./features/saved-jobs/SavedJobs";
 import Recommendations from "./features/recommendations/Recommendations";
+import ResumeAnalyzer from "./features/resume/ResumeAnalyzer";
+
 import {
   getCurrentUser,
   logoutUser,
@@ -19,14 +22,17 @@ type ActiveView =
   | "jobs"
   | "saved"
   | "recommendations"
-  | "applications";
+  | "applications"
+  | "resume";
 
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
   const [logoutError, setLogoutError] = useState("");
+
   const [activeView, setActiveView] =
     useState<ActiveView>("dashboard");
+
   const [trackerRefreshKey, setTrackerRefreshKey] = useState(0);
 
   const [theme, setTheme] = useState<Theme>(() => {
@@ -39,6 +45,7 @@ export default function App() {
     }
   });
 
+  // Apply and persist the selected theme.
   useEffect(() => {
     const root = document.documentElement;
     const body = document.body;
@@ -47,18 +54,21 @@ export default function App() {
     body.dataset.theme = theme;
 
     root.style.colorScheme = theme;
+
     body.style.backgroundColor =
       theme === "dark" ? "#10121b" : "#f6f8fc";
+
     body.style.color =
       theme === "dark" ? "#edf0fa" : "#172033";
 
     try {
       window.localStorage.setItem("hireflow-theme", theme);
     } catch {
-      // The selected theme still works for this session.
+      // Theme still works for this session if storage is unavailable.
     }
   }, [theme]);
 
+  // Restore the authenticated session.
   useEffect(() => {
     let cancelled = false;
 
@@ -93,19 +103,31 @@ export default function App() {
       setActiveView("dashboard");
     } catch (err) {
       setLogoutError(
-        err instanceof Error ? err.message : "Unable to sign out."
+        err instanceof Error ? err.message : "Unable to sign out.",
       );
     }
   }
 
   function toggleTheme() {
     setTheme((current) =>
-      current === "light" ? "dark" : "light"
+      current === "light" ? "dark" : "light",
     );
   }
 
+  function navigateTo(view: ActiveView) {
+    setActiveView(view);
+
+    if (view === "applications") {
+      setTrackerRefreshKey((key) => key + 1);
+    }
+  }
+
   if (checkingSession) {
-    return <main className="auth-page">Checking your session...</main>;
+    return (
+      <main className="auth-page">
+        Checking your session...
+      </main>
+    );
   }
 
   if (!user) {
@@ -126,8 +148,10 @@ export default function App() {
           <button
             type="button"
             className={activeView === "dashboard" ? "active" : ""}
-            aria-current={activeView === "dashboard" ? "page" : undefined}
-            onClick={() => setActiveView("dashboard")}
+            aria-current={
+              activeView === "dashboard" ? "page" : undefined
+            }
+            onClick={() => navigateTo("dashboard")}
           >
             Dashboard
           </button>
@@ -136,7 +160,7 @@ export default function App() {
             type="button"
             className={activeView === "jobs" ? "active" : ""}
             aria-current={activeView === "jobs" ? "page" : undefined}
-            onClick={() => setActiveView("jobs")}
+            onClick={() => navigateTo("jobs")}
           >
             Find jobs
           </button>
@@ -145,7 +169,7 @@ export default function App() {
             type="button"
             className={activeView === "saved" ? "active" : ""}
             aria-current={activeView === "saved" ? "page" : undefined}
-            onClick={() => setActiveView("saved")}
+            onClick={() => navigateTo("saved")}
           >
             Saved jobs
           </button>
@@ -158,21 +182,29 @@ export default function App() {
             aria-current={
               activeView === "recommendations" ? "page" : undefined
             }
-            onClick={() => setActiveView("recommendations")}
+            onClick={() => navigateTo("recommendations")}
           >
             Recommended jobs
           </button>
 
           <button
             type="button"
-            className={activeView === "applications" ? "active" : ""}
+            className={activeView === "resume" ? "active" : ""}
+            aria-current={activeView === "resume" ? "page" : undefined}
+            onClick={() => navigateTo("resume")}
+          >
+            Resume Analyzer
+          </button>
+
+          <button
+            type="button"
+            className={
+              activeView === "applications" ? "active" : ""
+            }
             aria-current={
               activeView === "applications" ? "page" : undefined
             }
-            onClick={() => {
-              setActiveView("applications");
-              setTrackerRefreshKey((key) => key + 1);
-            }}
+            onClick={() => navigateTo("applications")}
           >
             My applications
           </button>
@@ -233,9 +265,12 @@ export default function App() {
         <SavedJobs />
       ) : activeView === "recommendations" ? (
         <Recommendations />
+      ) : activeView === "resume" ? (
+        <ResumeAnalyzer />
       ) : (
         <ApplicationTracker refreshKey={trackerRefreshKey} />
       )}
     </>
   );
 }
+

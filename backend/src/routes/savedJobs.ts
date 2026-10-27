@@ -35,12 +35,25 @@ router.post("/", async (req, res) => {
     throw new ApiError(404, "Job not found");
   }
 
-  const savedJob = await SavedJob.create({
-    userId: req.userId,
-    jobId,
-  });
+  try {
+    const savedJob = await SavedJob.create({
+      userId: req.userId,
+      jobId,
+    });
 
-  res.status(201).json({ savedJob });
+    res.status(201).json({ savedJob });
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === 11000
+    ) {
+      throw new ApiError(409, "Job is already saved");
+    }
+
+    throw error;
+  }
 });
 
 // Remove a job from the current user's saved list.

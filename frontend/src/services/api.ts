@@ -47,7 +47,6 @@ export async function getJobs(search = ""): Promise<JobsResponse> {
   return response.json() as Promise<JobsResponse>;
 }
 
-
 export interface AuthUser {
   id: string;
   name: string;
@@ -102,7 +101,6 @@ export async function getCurrentUser() {
 export async function logoutUser() {
   return authRequest<void>("/logout", {});
 }
-
 
 export type ApplicationStatus =
   | "Applied"
@@ -175,7 +173,6 @@ export function deleteApplication(id: string) {
   return applicationRequest<void>(`/${encodeURIComponent(id)}`, "DELETE");
 }
 
-
 export interface SavedJob {
   _id: string;
   createdAt: string;
@@ -235,7 +232,6 @@ export function removeSavedJob(jobId: string) {
     "DELETE",
   );
 }
-
 
 export interface JobPreferences {
   skills: string[];
@@ -298,4 +294,86 @@ export function saveJobPreferences(preferences: JobPreferences) {
 
 export function getRecommendedJobs() {
   return recommendationsRequest<RecommendedJobsResponse>("/");
+}
+
+export interface ResumeSectionCheck {
+  key: string;
+  label: string;
+  status: "found" | "not-detected" | "optional";
+  detail: string;
+}
+
+export interface ResumeAnalysisReport {
+  matchScore: number;
+  scoreBreakdown: {
+    skillScore: number | null;
+    keywordScore: number | null;
+    skillWeight: number;
+    keywordWeight: number;
+  };
+  matchedSkills: string[];
+  missingSkills: string[];
+  matchedKeywords: string[];
+  missingKeywords: string[];
+  totalRequiredSkills: number;
+  totalKeywords: number;
+  sectionChecks: ResumeSectionCheck[];
+  suggestions: string[];
+  method: string;
+  disclaimer: string;
+}
+
+export async function analyzeResumePdf(
+  file: File,
+  jobDescription: string,
+): Promise<{ report: ResumeAnalysisReport }> {
+  const formData = new FormData();
+  formData.append("resume", file);
+  formData.append("jobDescription", jobDescription);
+
+  const response = await fetch(`${API_BASE_URL}/api/resume/analyze`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(
+      data?.message || `Resume analysis failed (${response.status})`,
+    );
+  }
+
+  return response.json() as Promise<{ report: ResumeAnalysisReport }>;
+}
+
+export interface AnalyticsSummary {
+  totalApplications: number;
+  interviews: number;
+  offers: number;
+  byStatus: Record<ApplicationStatus, number>;
+  recentApplications: TrackedApplication[];
+}
+
+export async function getAnalyticsSummary(): Promise<AnalyticsSummary> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/analytics/summary`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+
+    throw new Error(
+      data?.message || `Failed to load analytics (${response.status})`,
+    );
+  }
+
+  return response.json() as Promise<AnalyticsSummary>;
 }

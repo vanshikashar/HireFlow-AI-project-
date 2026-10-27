@@ -13,7 +13,8 @@ import {
   YAxis,
 } from "recharts";
 import {
-  getApplications,
+  getAnalyticsSummary,
+  type AnalyticsSummary,
   type ApplicationStatus,
   type TrackedApplication,
 } from "../../services/api";
@@ -136,26 +137,29 @@ function getInsight(
 
 export default function Dashboard({ refreshKey }: Props) {
   const [applications, setApplications] = useState<TrackedApplication[]>([]);
+  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const loadDashboard = useCallback(async () => {
-    setLoading(true);
-    setError("");
+  setLoading(true);
+  setError("");
 
-    try {
-      const result = await getApplications();
-      setApplications(result.items);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to load dashboard data.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  try {
+    const result = await getAnalyticsSummary();
+
+    setAnalytics(result);
+    setApplications(result.recentApplications);
+  } catch (err) {
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Unable to load dashboard data.",
+    );
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   useEffect(() => {
     void loadDashboard();
